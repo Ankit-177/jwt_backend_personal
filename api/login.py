@@ -102,7 +102,7 @@ loginApi = Api(loginBp)
 class LoginAPI(Resource):
     def get(self):
         id = request.args.get("id")
-        login = db.session.query(Login).get(id)
+        login = Login.query.get(id)
         if login:
             return login.to_dict()
         return {"message": "not found"}, 404
@@ -112,7 +112,7 @@ class LoginAPI(Resource):
         parser.add_argument("username", required=True, type=str)
         parser.add_argument("password", required=True, type=str)
         args = parser.parse_args()
-        login = db.session.query(Login).filter_by(_username = args["username"], _password =args["password"]).first()
+        login = Login.query.filter_by(_username=args["username"], _password=args["password"]).first()
         if login:
             return login.to_dict()
         return {"message": "not found"}, 404
@@ -125,7 +125,7 @@ class LoginAPI(Resource):
         args = parser.parse_args()
         
         try:
-            login = db.session.query(Login).get(args["id"])
+            login = Login.query.get(args["id"])
             if login:
                 if args["username"] is not None:
                     login.username = args["username"]
@@ -145,7 +145,7 @@ class LoginAPI(Resource):
         args = parser.parse_args()
 
         try:
-            login = db.session.query(Login).get(args["id"])
+            login = Login.query.get(args["id"])
             if login:
                 db.session.delete(login)
                 db.session.commit()
@@ -156,11 +156,10 @@ class LoginAPI(Resource):
             db.session.rollback()
             return {"message": f"error {exception}"}, 500
 
-class createAccAPI(Resource):
+class CreateAccAPI(Resource):
     
     def post(self):
         parser = reqparse.RequestParser()
-        
         parser.add_argument("username", required=True, type=str)
         parser.add_argument("password", required=True, type=str)
         args = parser.parse_args()
@@ -174,9 +173,9 @@ class createAccAPI(Resource):
             db.session.rollback()
             return {"message":f"error {exception}"}, 500
         
-class authenticationAPI(Resource):
+class AuthorizeAPI(Resource):
     
- def post(self):
+    def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument("id", required=True, type=int)
         parser.add_argument("username")
@@ -184,7 +183,7 @@ class authenticationAPI(Resource):
         args = parser.parse_args()
         
         try:
-            login = db.session.query(Login).get(args["id"])
+            login = Login.query.get(args["id"])
             if login:
                 if args["username"] is not None:
                     login.username = args["username"]
@@ -200,8 +199,8 @@ class authenticationAPI(Resource):
         
 class LoginListAPI(Resource):
     def get(self):
-        login = db.session.query(Login).all()
-        return [login.to_dict() for scholar in login]
+        login = Login.query.all()
+        return [login.to_dict() for login in login]
     
     def delete(self):
         try:
@@ -213,6 +212,7 @@ class LoginListAPI(Resource):
             return {"message": f"error {exception}"}
 
 loginApi.add_resource(LoginAPI, "/login")
-loginApi.add_resource(createAccAPI, "/signUp")
-loginApi.add_resource(authenticationAPI, "/authenticate")
+loginApi.add_resource(CreateAccAPI, "/signUp")
+loginApi.add_resource(AuthorizeAPI, "/authorize")
 loginApi.add_resource(LoginListAPI, "/loginList")
+

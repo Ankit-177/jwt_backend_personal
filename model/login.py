@@ -12,7 +12,7 @@ class Login(db.Model):
         self._password = password
     
     def __repr__(self):
-        return "id= '%s', username='%s', password='%s'" % (self.id, self.username, self.password)
+        return "id='%s', username='%s', password='%s'" % (self.id, self.username, self.password)
     
     @property    
     def username(self):
